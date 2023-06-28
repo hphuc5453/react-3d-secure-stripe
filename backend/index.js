@@ -24,6 +24,51 @@ app.post("/create-payment-intent", async (req, res) => {
   });
 });
 
+app.get("/products", async (req, res) => {
+  const subscriptions = await stripe.products.list();
+  res.send(
+    {
+      subscriptions: {subscriptions}
+    }
+  )
+})
+
+app.get(`/prices`, async (req, res) => {
+  const price = await stripe.prices.retrieve(
+    req.query.id
+  );
+  res.send(
+    {
+      price: {price}
+    }
+  )
+})
+
+const YOUR_DOMAIN = 'http://localhost:3000'
+
+app.post('/create-checkout-session', async (req, res) => {
+  const prices = await stripe.prices.list({
+    lookup_keys: [req.body.lookup_key],
+    expand: ['data.product'],
+  });
+  const session = await stripe.checkout.sessions.create({
+    billing_address_collection: 'auto',
+    line_items: [
+      {
+        price: req.body.lookup_key,
+        // For metered billing, do not pass quantity
+        quantity: 1,
+
+      },
+    ],
+    mode: 'subscription',
+    success_url: `${YOUR_DOMAIN}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${YOUR_DOMAIN}`,
+  });
+
+  res.redirect(303, session.url);
+});
+
 
 // app.post('/pay', async (req, res) => {
 //   try {
