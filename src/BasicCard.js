@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Card } from 'antd';
 import './App.css'
 
-export default function BasicCard({ title, amount, descriptions, onCardClick, isSelected }) {
+export default function BasicCard({ title, amount, onCardClick, isSelected }) {
 
   return (
     <div onClick={onCardClick}>
@@ -13,7 +13,7 @@ export default function BasicCard({ title, amount, descriptions, onCardClick, is
           <text style={{ fontSize: 50 }}>${amount}</text>
           <text>/mo</text>
         </div>
-        {descriptions.map((value, i) => {
+        {/* {descriptions.map((value, i) => {
           return (
             <div style={{ display: 'grid', gridTemplateColumns: '0.1fr 1fr', alignItems: 'center' }}>
               <span class="checkmark">
@@ -22,7 +22,7 @@ export default function BasicCard({ title, amount, descriptions, onCardClick, is
               <h2 style={{ fontSize: 13, color: '#8e9094', fontWeight: 'normal' }}>{value}</h2>
             </div>
           )
-        })}
+        })} */}
       </Card>
     </div>
   );
