@@ -37,7 +37,6 @@ export default function Start() {
 
                 Promise.all(fetchPromises)
                     .then((newList) => {
-                        console.log(newList.length);
                         setSubscriptions(newList);
                     })
                     .catch((error) => {
@@ -76,24 +75,52 @@ export default function Start() {
         return (
             <section>
                 <div className="product Box-root">
-                    <div className="description Box-root">
+                    <div className="description Box-root" style={{alignItems:"center"}}>
                         <h3>Subscription to starter plan successful!</h3>
                     </div>
                 </div>
-                <form action="/create-portal-session" method="POST">
-                    <input
-                        type="hidden"
-                        id="session-id"
-                        name="session_id"
-                        value={sessionId}
-                    />
-                    <button id="checkout-and-portal-button" type="submit">
-                        Manage your billing information
+                <button id="checkout-and-portal-button" onClick={() => {onRedirectToManagerBilling(sessionId)}}>
+                    Manage your billing information
                     </button>
-                </form>
             </section>
         );
     };
+
+    async function onRedirectToManagerBilling(sessionId) {
+        await fetch('http://localhost:5000/create-portal-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify( {
+                session_id: sessionId
+            })
+        })
+        .then((res) => res.json())
+        .then((res) => {
+            const {data} = res;
+            window.location.href = data.url;
+        })
+    }
+
+    // Form data
+    const onSubmitForm = async () => {
+        await fetch('http://localhost:5000/create-checkout-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify( {
+                lookup_key: priceSelectedId
+            })
+        })
+        .then((res) => res.json())
+        .then((res) => {
+            const {data} = res;
+            window.location.href = data.url;
+        })
+    }
+
 
     if (!success) {
         return <div style={{ flexDirection: 'row', display: 'flex', alignItems: 'center' }}>
@@ -112,15 +139,10 @@ export default function Start() {
                         })
                     }
                 </div>
-                <form action="http://localhost:5000/create-checkout-session" method="POST">
-                    {/* Add a hidden field with the lookup_key of your Price */}
-                    <input type="hidden" name="lookup_key" value={priceSelectedId} />
-                    <button id="checkout-and-portal-button" type="submit">
+              
+                <button style={{width: 300, margin: 100}} id="checkout-and-portal-button" onClick={onSubmitForm}>
                         Checkout
                     </button>
-                </form>
-                {/* <button style={{ maxWidth: 300, marginTop: 100 }} onClick={() => navigate('/payment')}>Continue Payment</button> */}
-
             </div>
             <Routes>
                 <Route exact path="/payment" element={<App />} />
