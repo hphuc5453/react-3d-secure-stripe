@@ -1,5 +1,5 @@
 require('dotenv').config();
-const express = require('express');
+const express = require('express')
 const app = express();
 const cors = require('cors');
 const Stripe = require('stripe');
@@ -28,7 +28,7 @@ app.get("/products", async (req, res) => {
   const subscriptions = await stripe.products.list();
   res.send(
     {
-      subscriptions: {subscriptions}
+      subscriptions: { subscriptions }
     }
   )
 })
@@ -39,7 +39,7 @@ app.get(`/prices`, async (req, res) => {
   );
   res.send(
     {
-      price: {price}
+      price: { price }
     }
   )
 })
@@ -47,15 +47,17 @@ app.get(`/prices`, async (req, res) => {
 const YOUR_DOMAIN = 'http://localhost:3000'
 
 app.post('/create-checkout-session', async (req, res) => {
+
   const prices = await stripe.prices.list({
     lookup_keys: [req.body.lookup_key],
     expand: ['data.product'],
   });
+
   const session = await stripe.checkout.sessions.create({
     billing_address_collection: 'auto',
     line_items: [
       {
-        price: req.body.lookup_key,
+        price: prices.data[0].id,
         // For metered billing, do not pass quantity
         quantity: 1,
 
@@ -66,36 +68,45 @@ app.post('/create-checkout-session', async (req, res) => {
     cancel_url: `${YOUR_DOMAIN}`,
   });
 
-  res.redirect(303, session.url);
+  return res
+    .status(200)
+    .json({
+      success: true,
+      message: 'Success',
+      data: {
+        url: session.url
+      }
+    })
 });
 
+app.post('/create-portal-session', async (req, res) => {
+  // For demonstration purposes, we're using the Checkout session to retrieve the customer ID.
+  // Typically this is stored alongside the authenticated user in your database.
+  const sessionId = req.body.session_id
+  console.log(sessionId)
+  const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-// app.post('/pay', async (req, res) => {
-//   try {
-//     const amount = 200;
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount,
-//       currency: 'usd',
-//       payment_method_types: ['card'],
-//       metadata: {
-//         name: 'value'
-//       }
-//     });
-//     const clientSecret = paymentIntent.client_secret;
-//     res.json({ clientSecret, message: 'Payment initated sucessfully' })
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: 'Internal server error' })
-//   }
-// })
+  console.log(checkoutSession)
 
-// app.post('/stripe', (req, res) => {
-//   if (req.body.type === "payment_intent.created") {
-//     console.log(`${req.body.data.object.metadata.name} initated payment!`);
-//   }
-//   if (req.body.type === "payment_intent.succeeded") {
-//     console.log(`${req.body.data.object.metadata.name} succeeded payment!`);
-//   }
-// })
+  // This is the url to which the customer will be redirected when they are done
+  // managing their billing with the portal.
+  const returnUrl = YOUR_DOMAIN;
+
+  console.log(checkoutSession.customer)
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: checkoutSession.customer,
+    return_url: returnUrl,
+  });
+
+  return res
+    .status(200)
+    .json({
+      success: true,
+      message: 'Success',
+      data: {
+        url: portalSession.url
+      }
+    })
+});
 
 app.listen(5000, () => console.log('Server is running on port 5000'));
