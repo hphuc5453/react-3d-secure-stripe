@@ -88,33 +88,4 @@ export default function Checkout() {
             </button>
         </form>
     );
-
-    // const pay = async () => {
-    //     try {
-    //         const response = await fetch('http://localhost:5000/pay', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         })
-    //         const data = await response.json();
-    //         const cardElement = elements.getElement(CardElement);
-    //         const confirmPayment = await stripe.confirmCardPayment(
-    //             data.clientSecret,
-    //             { payment_method: { card: cardElement } }
-    //         )
-    //         const { paymentIntent } = confirmPayment;
-    //         if (paymentIntent.status == 'succeeded') alert('Payment sucessful'); else alert('Payment failed');
-    //     } catch (error) {
-    //         console.log(error);
-    //         alert('Payment failed!')
-    //     }
-    // }
-
-    // return (
-    //     <div className="checkout">
-    //         <CardElement />
-    //         <button onClick={pay}>Pay</button>
-    //     </div>
-    // );
 }

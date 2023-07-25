@@ -1,23 +1,23 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const bodyParser = require('body-parser')
+const express = require('express');
+const app = express();
+app.use(express.static('public'));
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const endpointSecret = 'whsec_9a4qiiFXuHZVSXKBXoTDxZAu8IHm3lxc';
 const YOUR_DOMAIN = 'http://localhost:3000'
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+// // parse application/x-www-form-urlencoded
+// app.use(bodyParser.urlencoded({ extended: false }))
 
-// parse application/json
-app.use(bodyParser.json({
-  verify: (req, res, buf) => {
-    req.rawBody = buf
-  }
-}))
+// // parse application/json
+// app.use(bodyParser.json({
+//   verify: (req, res, buf) => {
+//     req.rawBody = buf
+//   }
+// }))
 
-app.use(cors())
+// app.use(cors())
 
 const port = 5000
 
@@ -39,6 +39,7 @@ app.post("/create-payment-intent", async (req, res) => {
 
 app.get("/products", async (req, res) => {
   const subscriptions = await stripe.products.list();
+  debugger
   res.send(
     {
       subscriptions: { subscriptions }

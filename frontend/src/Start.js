@@ -1,6 +1,6 @@
 import App from "./App"
 import './App.css'
-import { useNavigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import BasicCard from './BasicCard'
 import { useState, useEffect } from "react";
 import Success from './Success'
@@ -14,9 +14,7 @@ export default function Start() {
     useEffect(() => {
         fetch('http://localhost:5000/products', {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        
         })
             .then((res) => res.json())
             .then((data) => {
@@ -45,9 +43,6 @@ export default function Start() {
             });
     }, []);
 
-
-
-    const navigate = useNavigate();
 
     let [success, setSuccess] = useState(false);
     let [sessionId, setSessionId] = useState('');
